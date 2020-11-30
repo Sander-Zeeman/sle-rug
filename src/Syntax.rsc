@@ -3,26 +3,16 @@ module Syntax
 extend lang::std::Layout;
 extend lang::std::Id;
 
-/*
- * Concrete syntax of QL
- */
-
-start syntax Form = "form" Id name Block block; //Starting point
-
-syntax Block = "{" Statement* statements "}"; //A block => 0 or more statements
-
-syntax Statement
-  = Question q				//Question
-  | Question q "=" Expr ex  //Computed Question
-  | If if					//If-Then
-  | If if Else else			//If-Then-Else
+start syntax Form
+  = "form" Id name "{" Question* questions "}"
   ;
 
-syntax Question = Str string Id name ":" Type type;
-
-syntax If = "if" "(" Expr ex ")" Block block;
-
-syntax Else = "else" Block block;
+syntax Question
+  = Str content Id name ":" Type type														//Question
+  | Str content Id name ":" Type type "=" Expr ex  											//Computed Question
+  | "if" "(" Expr guard ")" "{" Question* questions "}"									   	//If-Then
+  | "if" "(" Expr guard ")" "{" Question* questions "}" "else" "{" Question* questions "}" 	//If-Then-Else
+  ;
 
 syntax Expr
   = Id name \ "true" \ "false" //true/false are reserved keywords.
@@ -38,12 +28,16 @@ syntax Expr
 
 lexical Int
   = [\-]? [1-9][0-9]* ([.] [0-9]+)?
-  | [\-]? [0] ([.] [0-9]+)?
+  | [\-]? [0]         ([.] [0-9]+)?
   ;
 
-lexical Bool = "true" | "false";
+lexical Bool
+  = "true" | "false"
+  ;
 
-lexical Str = [\"] ![\"]* [\"];
+lexical Str
+  = [\"] ![\"]* [\"]
+  ;
 
 syntax Type
   = "boolean"

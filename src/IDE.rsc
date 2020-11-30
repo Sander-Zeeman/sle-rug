@@ -19,7 +19,7 @@ void main() {
   registerLanguage(MyQL, "myql", Tree(str src, loc l) {
     return parse(#start[Form], src, l);
   });
-  
+
   contribs = {
     annotator(Tree(Tree t) {
       if (start[Form] pt := t) {
@@ -30,7 +30,7 @@ void main() {
       }
       return t[@messages={error("Not a form", t@\loc)}];
     }),
-    
+
     builder(set[Message] (Tree t) {
       if (start[Form] pt := t) {
         AForm ast = cst2ast(pt);
@@ -44,6 +44,6 @@ void main() {
       return {error("Not a form", t@\loc)};
     })
   };
-  
+
   registerContributions(MyQL, contribs);
 }
