@@ -28,7 +28,7 @@ AQuestion cst2ast(Question question) {
 
 AExpr cst2ast(Expr e) {
   switch (e) {
-    case e:(Expr)`<Id x>`  				  	 : return ref(id("<x>", src=x@\loc), src=e@\loc);
+    case e:(Expr)`<Id x>`  				  	 : return ref(id("<x>", src=x@\loc));
     case e:(Expr)`<Int x>` 				  	 : return \int(toInt("<x>"), src=e@\loc);
     case e:(Expr)`<Bool b>`				  	 : return \bool("<b>" := "true" ,src=b@\loc);
     case e:(Expr)`(<Expr ex>)` 			 	 : return cst2ast(ex);
@@ -50,5 +50,10 @@ AExpr cst2ast(Expr e) {
 }
 
 AType cst2ast(Type t) {
-  return absType("<t>", src=t@\loc);
+  switch (t) {
+  	case t: (Type)`boolean` : return \boolean(src=t@\loc);
+  	case t: (Type)`integer` : return \integer(src=t@\loc);
+  	case t: (Type)`string`  : return \string(src=t@\loc);
+  	default				    : throw "Not a type: <t>";
+  }
 }
