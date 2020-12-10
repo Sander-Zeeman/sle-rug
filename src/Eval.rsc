@@ -27,12 +27,44 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
-  return ( () | it + eval(q, inp, venv) | /AQuestion q := f ); 
+  for (/AQuestion q := f) {
+  	venv = eval(q, inp, venv);
+  }
+  return venv;
 }
 
-VEnv eval(AQuestion q, Input _, VEnv _) {
-  // evaluate conditions for branching,
-  // evaluate inp and computed questions to return updated VEnv
+VEnv eval(regQuestion(_, str name, _), input(str question, Value \value), VEnv venv) {
+  if (name == question) {
+  	venv += (name: \value);
+  }
+  return venv;
+}
+
+VEnv eval(calcQuestion(_, str name, _, AExpr expr), Input inp, VEnv venv) = venv + (name: eval(expr, venv));
+
+VEnv eval(ifStat(AExpr guard, list[AQuestion] questions), Input inp, VEnv venv) {
+  if (eval(guard, venv) == vbool(true)) {
+  	for (AQuestion q <- questions) {
+  	  venv = eval(q, inp, venv);
+  	}
+  }
+  return venv;
+}
+
+VEnv eval(ifElseStat(AExpr guard, list[AQuestion] questions, list[AQuestion] altQuestions), Input inp, VEnv venv) {
+  if (eval(guard, venv) == vbool(true)) {
+  	for (AQuestion q <- questions) {
+  	  venv = eval(q, inp, venv);
+  	}
+  } else {
+  	for (AQuestion q <- altQuestions) {
+  	  venv = eval(q, inp, venv);
+  	}
+  }
+  return venv;
+}
+
+VEnv eval(AQuestion q, Input inp, VEnv venv) {
   throw "Not a valid question: <q>";
 }
 
