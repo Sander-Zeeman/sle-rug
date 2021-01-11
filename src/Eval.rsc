@@ -19,7 +19,7 @@ Value defaultValue(\boolean()) = vbool(false);
 Value defaultValue(\integer()) = vint(0);
 Value defaultValue(\string())  = vstr("");
 
-VEnv initialEnv(AForm f) = (name : defaultValue(\type) | /regQuestion(_,str name, AType \type) := f);
+VEnv initialEnv(AForm f) = (name.name : defaultValue(\type) | /regQuestion(_, AId name, AType \type) := f);
 
 VEnv eval(AForm f, Input inp, VEnv venv) {
   return solve (venv) {
@@ -34,14 +34,14 @@ VEnv evalOnce(AForm f, Input inp, VEnv venv) {
   return venv;
 }
 
-VEnv eval(regQuestion(_, str name, _), input(str question, Value \value), VEnv venv) {
-  if (name == question) {
-  	venv += (name: \value);
+VEnv eval(regQuestion(_, AId name, _), input(str question, Value \value), VEnv venv) {
+  if (name.name == question) {
+  	venv += (name.name: \value);
   }
   return venv;
 }
 
-VEnv eval(calcQuestion(_, str name, _, AExpr expr), Input inp, VEnv venv) = venv + (name: eval(expr, venv));
+VEnv eval(calcQuestion(_, AId name, _, AExpr expr), Input inp, VEnv venv) = venv + (name.name: eval(expr, venv));
 
 VEnv eval(ifStat(AExpr guard, list[AQuestion] questions), Input inp, VEnv venv) {
   if (eval(guard, venv) == vbool(true)) {

@@ -14,9 +14,9 @@ AForm cst2ast(start[Form] startForm) {
 AQuestion cst2ast(Question question) {
   switch(question) {
     case q:(Question)`<Str content> <Id name> : <Type ansType>`:
-      return regQuestion("<content>", "<name>", cst2ast(ansType), src=q@\loc);
+      return regQuestion("<content>", cst2ast(name), cst2ast(ansType), src=q@\loc);
     case q:(Question)`<Str content> <Id name> : <Type ansType> = <Expr expr>`:
-      return calcQuestion("<content>", "<name>", cst2ast(ansType), cst2ast(expr), src=q@\loc);
+      return calcQuestion("<content>", cst2ast(name), cst2ast(ansType), cst2ast(expr), src=q@\loc);
     case q:(Question)`if (<Expr guard>) { <Question* condQuestions> }`:
       return ifStat(cst2ast(guard), [cst2ast(question) | Question question <- condQuestions], src=q@\loc);
     case q:(Question)`if (<Expr guard>) { <Question* condQuestions> } else { <Question* altQuestions> }`:
@@ -49,6 +49,8 @@ AExpr cst2ast(Expr e) {
     default									 : throw "Not an expression: <e>";
   }
 }
+
+AId cst2ast(Id name) = id("<name>", src=name@\loc);
 
 AType cst2ast(Type t) {
   switch (t) {

@@ -18,17 +18,17 @@ RefGraph resolve(AForm f) = <us, ds, us o ds>
   when Use us := uses(f), Def ds := defs(f);
 
 Use uses(AForm f) {
-  Use g = {<i.src, i.name> | /AId i := f};
+  Use g = {<id.src, id.name> | /AExpr expr := f, ref(AId id) := expr};
   return g;
 }
 
 Def defs(AForm f) {
   Def g = {};
   visit (f) {
-    case regQuestion(_, str name, _, src = loc l):
-      g = g + <name, l>;
-    case calcQuestion(_, str name, _, _, src = loc l):
-      g = g + <name, l>;
+    case regQuestion(_, AId name, _):
+      g = g + <name.name, name.src>;
+    case calcQuestion(_, AId name, _, _):
+      g = g + <name.name, name.src>;
   }
   return g;
 }

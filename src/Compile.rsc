@@ -174,13 +174,13 @@ str expr2js(AExpr _) = "";
 
 str question2state(regQuestion(content, name, ansType)) =
 "this.state.vars.push({
-'  name: \"<name>\",
+'  name: \"<name.name>\",
 '  val: <getStandardExpr(ansType)>,
 '});";
 
 str question2state(calcQuestion(content, name, ansType, expr)) =
 "this.state.vars.push({
-'  name: \"<name>\",
+'  name: \"<name.name>\",
 '  val: <expr2js(expr)>,
 '});";
 
@@ -368,7 +368,7 @@ str aquestion2class(regQuestion(content, name, \boolean())) =
 '  BooleanQuestion,
 '  {
 '    message: <content>,
-'    name   : \"<name>\",
+'    name   : \"<name.name>\",
 '    enabled: true,
 '    <addFunctionProps()>
 '  },
@@ -380,7 +380,7 @@ str aquestion2class(regQuestion(content, name, \integer())) =
 '  TextQuestion,
 '  {
 '    message: <content>,
-'    name   : \"<name>\",
+'    name   : \"<name.name>\",
 '    enabled: true,
 '    type   : \'number\',
 '    <addFunctionProps()>
@@ -393,7 +393,7 @@ str aquestion2class(regQuestion(content, name, \string())) =
 '  TextQuestion,
 '  {
 '    message: <content>,
-'    name   : \"<name>\",
+'    name   : \"<name.name>\",
 '    enabled: true,
 '    type   : \'text\',
 '    <addFunctionProps()>
@@ -406,7 +406,7 @@ str aquestion2class(calcQuestion(content, name, \boolean(), expr)) =
 '  BooleanQuestion,
 '  {
 '    message: <content>,
-'    name   : \"<name>\",
+'    name   : \"<name.name>\",
 '    enabled: false,
 '    <addFunctionProps()>
 '  },
@@ -418,7 +418,7 @@ str aquestion2class(calcQuestion(content, name, \integer(), expr)) =
 '  TextQuestion,
 '  {
 '    message: <content>,
-'    name   : \"<name>\",
+'    name   : \"<name.name>\",
 '    enabled: false,
 '    type   : \'number\',
 '    <addFunctionProps()>
@@ -431,7 +431,7 @@ str aquestion2class(calcQuestion(content, name, \string(), expr)) =
 '  TextQuestion,
 '  {
 '    message: <content>,
-'    name   : \"<name>\",
+'    name   : \"<name.name>\",
 '    enabled: false,
 '    type   : \'text\',
 '    <addFunctionProps()>

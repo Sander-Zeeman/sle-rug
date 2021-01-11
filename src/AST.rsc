@@ -5,8 +5,8 @@ data AForm(loc src = |tmp:///|)
   ;
 
 data AQuestion(loc src = |tmp:///|)
-  = regQuestion(str content, str name, AType ansType)
-  | calcQuestion(str content, str name, AType ansType, AExpr expr)
+  = regQuestion(str content, AId name, AType ansType)
+  | calcQuestion(str content, AId name, AType ansType, AExpr expr)
   | ifStat(AExpr guard, list[AQuestion] condQuestions)
   | ifElseStat(AExpr guard, list[AQuestion] condQuestions, list[AQuestion] altQuestions)
   ;
