@@ -2,6 +2,7 @@ module Eval
 
 import AST;
 import Resolve;
+import IO;
 
 data Value
   = vint(int n)
@@ -52,11 +53,14 @@ VEnv eval(ifStat(AExpr guard, list[AQuestion] questions), Input inp, VEnv venv) 
 }
 
 VEnv eval(ifElseStat(AExpr guard, list[AQuestion] questions, list[AQuestion] altQuestions), Input inp, VEnv venv) {
+  println(eval(guard, venv));
   if (eval(guard, venv) == vbool(true)) {
+  	println("true");
   	for (AQuestion q <- questions) {
   	  venv = eval(q, inp, venv);
   	}
   } else {
+  	println("false");
   	for (AQuestion q <- altQuestions) {
   	  venv = eval(q, inp, venv);
   	}
@@ -73,6 +77,7 @@ Value eval(AExpr e, VEnv venv) {
     case ref(id(x))    				 : return venv["<x>"];
     case \int(int x)   				 : return vint(x);
     case \bool(bool b) 				 : return vbool(b);
+    case \str(str s) 				 : return vstr(s);
     case \not(AExpr e) 			     : return "<eval(e, venv)>" := "vbool(true)" ? vbool(false) : vbool(true) ;
     case \mul(AExpr lhs, AExpr rhs)  : return vint( eval(lhs, venv).n *  eval(rhs, venv).n);
     case \div(AExpr lhs, AExpr rhs)  : return vint( eval(lhs, venv).n /  eval(rhs, venv).n);
@@ -82,7 +87,7 @@ Value eval(AExpr e, VEnv venv) {
     case \or(AExpr lhs, AExpr rhs)   : return vbool(eval(lhs, venv).b || eval(rhs, venv).b);
     case \less(AExpr lhs, AExpr rhs) : return vbool(eval(lhs, venv).n <  eval(rhs, venv).n);
     case \leq(AExpr lhs, AExpr rhs)  : return vbool(eval(lhs, venv).n <= eval(rhs, venv).n);
-    case \eq(AExpr lhs, AExpr rhs)   : return vbool(eval(lhs, venv)   == eval(rhs, venv)  );
+    case \equ(AExpr lhs, AExpr rhs)   : return vbool(eval(lhs, venv)   == eval(rhs, venv)  );
     case \neq(AExpr lhs, AExpr rhs)  : return vbool(eval(lhs, venv)   != eval(rhs, venv)  );
     case \geq(AExpr lhs, AExpr rhs)  : return vbool(eval(lhs, venv).n >= eval(rhs, venv).n);
     case \gt(AExpr lhs, AExpr rhs)   : return vbool(eval(lhs, venv).n >  eval(rhs, venv).n);

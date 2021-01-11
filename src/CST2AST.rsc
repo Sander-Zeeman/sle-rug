@@ -31,6 +31,7 @@ AExpr cst2ast(Expr e) {
     case e:(Expr)`<Id x>`  				  	 : return ref(id("<x>", src=x@\loc));
     case e:(Expr)`<Int x>` 				  	 : return \int(toInt("<x>"), src=e@\loc);
     case e:(Expr)`<Bool b>`				  	 : return \bool("<b>" := "true" ,src=b@\loc);
+    case e:(Expr)`<Str s>`				  	 : return \str("<s>" ,src=s@\loc);
     case e:(Expr)`(<Expr ex>)` 			 	 : return cst2ast(ex);
     case e:(Expr)`!<Expr ex>`			  	 : return \not(cst2ast(ex), src=e@\loc);
     case e:(Expr)`<Expr lhs> * <Expr rhs>`	 : return \mul(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
@@ -41,7 +42,7 @@ AExpr cst2ast(Expr e) {
     case e:(Expr)`<Expr lhs> \<= <Expr rhs>` : return \leq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case e:(Expr)`<Expr lhs> \> <Expr rhs>`  : return \gt(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case e:(Expr)`<Expr lhs> \>= <Expr rhs>` : return \geq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
-    case e:(Expr)`<Expr lhs> == <Expr rhs>`  : return \eq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
+    case e:(Expr)`<Expr lhs> == <Expr rhs>`  : return \equ(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case e:(Expr)`<Expr lhs> != <Expr rhs>`  : return \neq(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case e:(Expr)`<Expr lhs> && <Expr rhs>`  : return \and(cst2ast(lhs), cst2ast(rhs), src=e@\loc);
     case e:(Expr)`<Expr lhs> || <Expr rhs>`  : return \or(cst2ast(lhs), cst2ast(rhs), src=e@\loc);

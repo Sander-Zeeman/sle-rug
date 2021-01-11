@@ -30,7 +30,7 @@ void main() {
       }
       return t[@messages={error("Not a form", t@\loc)}];
     }),
-
+	
     builder(set[Message] (Tree t) {
       if (start[Form] pt := t) {
         AForm ast = cst2ast(pt);

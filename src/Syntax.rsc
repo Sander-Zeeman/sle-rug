@@ -16,7 +16,7 @@ syntax Question
 
 syntax Expr
   = Id name \ "true" \ "false" //true/false are reserved keywords.
-  | (Int | Bool)
+  | (Int | Bool | Str)
   > left "(" Expr ")"
   > right "!" Expr
   > left (Expr "*" Expr | Expr "/" Expr)

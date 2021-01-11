@@ -95,6 +95,7 @@ Type typeOf(ref(id(_, src = loc u)), TEnv tenv, UseDef useDef) {
 
 Type typeOf(\int(_), TEnv tenv, UseDef useDef) 				  	   = tint();
 Type typeOf(\bool(_), TEnv tenv, UseDef useDef) 				   = tbool();
+Type typeOf(\str(_), TEnv tenv, UseDef useDef) 				       = tstr();
 Type typeOf(\not( AExpr e),              TEnv tenv, UseDef useDef) = typeOf(e, tenv, useDef) == tbool() 		? tbool() : tunknown();
 Type typeOf(\mul( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)  ? tint()  : tunknown();
 Type typeOf(\div( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tint()  : tunknown();
@@ -106,6 +107,6 @@ Type typeOf(\gt(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lh
 Type typeOf(\geq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
 Type typeOf(\and( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tbool(), tenv, useDef)	? tbool() : tunknown();
 Type typeOf(\or(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tbool(), tenv, useDef)	? tbool() : tunknown();
-Type typeOf(\eq(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = tbool();
+Type typeOf(\equ(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = tbool();
 Type typeOf(\neq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = tbool();
 default Type typeOf(AExpr _, TEnv _, UseDef _) 					   = tunknown();
