@@ -24,8 +24,66 @@ void compile(AForm f) {
   writeFile(f.src[extension="html"].top, toString(form2html(f)));
 }
 
-str getFilename(AForm f) = f.src.path[10..-5];
+str getStyle() =
+"#comp {
+'  margin-top: 20px;
+'  margin-bottom: 20px;
+'  margin-right: 150px;
+'  margin-left: 80px;
+'}
+'
+'#msg {
+'  font-size: large;
+'}";
 
+
+//---------------HTML------------------------
+
+
+str getFilename(AForm f) = f.src.path[10..-5] + ".js";
+
+HTML5Node form2html(AForm f) = html(
+  head(
+    meta(
+      charset("UTF-8")
+    ),
+    style(
+      <getStyle()>
+    )
+  ),
+  body(
+    h2(
+      f.name
+    ),
+    div(
+      id(
+        "form"
+      )
+    ),
+    script(
+      src(
+        "https://unpkg.com/react@17/umd/react.production.min.js"
+      )
+    ),
+    script(
+      src(
+        "https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"
+      )
+    ),
+    script(
+      src(
+        "https://unpkg.com/@material-ui/core@latest/umd/material-ui.development.js"
+      )
+    ),
+    script(
+      src(
+        getFilename(f)
+      )
+    )
+  )
+);
+
+//---------------------JS-----------------------
 
 str getStandardExpr(/boolean()) = "new Expr(
 								  '  \"false\",
@@ -518,32 +576,6 @@ str buildWebPage(AForm f) =
 '
 'const domContainer = document.querySelector(\'#form\');
 'ReactDOM.render(e(App), domContainer);";
-
-HTML5Node form2html(AForm f) = html("
-  '  \<head\>
-  '    \<meta charset=\"UTF-8\" /\>
-  '    \<style\>
-  '      #comp {
-  '        margin-top: 20px;
-  '        margin-bottom: 20px;
-  '        margin-right: 150px;
-  '        margin-left: 80px;
-  '      }
-  '
-  '      #msg {
-  '        font-size: large;
-  '      }
-  '    \</style\>
-  '  \</head\>
-  '  \<body\>
-  '    \<h2\><f.name>\</h2\>
-  '    \<div id=\"form\"\>\</div\>
-  '    \<script src=\"https://unpkg.com/react@17/umd/react.production.min.js\"\>\</script\>
-  '    \<script src=\"https://unpkg.com/react-dom@17/umd/react-dom.production.min.js\"\>\</script\>
-  '    \<script src=\"https://unpkg.com/@material-ui/core@latest/umd/material-ui.development.js\"\>\</script\>
-  '    \<script src=\"<getFilename(f)>.js\"\>\</script\>
-  '  \</body\>
-");
 
 str form2js(AForm f) =
 "const e = React.createElement;

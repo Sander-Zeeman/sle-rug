@@ -6,36 +6,28 @@ import AST;
 
 import ParseTree;
 
-/* Normalization:
- *  wrt to the semantics of QL the following
- *     q0: "" int; 
- *     if (a) { 
- *        if (b) { 
- *          q1: "" int; 
- *        } 
- *        q2: "" int; 
- *      }
- *
- *  is equivalent to
- *     if (true) q0: "" int;
- *     if (true && a && b) q1: "" int;
- *     if (true && a) q2: "" int;
- *
- * Write a transformation that performs this flattening transformation.
- *
- */
+AQuestion flatten(q:regQuestion(str _, AId _, AType _), AExpr ongoingExpr)
+  = ifStat(ongoingExpr, [q]);
+
+AQuestion flatten(q:calcQuestion(str _, AId _, AType _, AExpr _), AExpr ongoingExpr)
+  = ifStat(ongoingExpr, [q]);
+  
+list[AQuestion] flatten(ifStat(AExpr guard, list[AQuestion] condQuestions), AExpr ongoingExpr)
+  = [*flatten(q, \and(ongoingExpr, guard)) | q <- condQuestions];
+ 
+list[AQuestion] flatten(ifElseStat(AExpr guard, list[AQuestion] condQuestions, list[AQuestion] altQuestions), AExpr ongoingExpr)
+  = [*flatten(q, \and(ongoingExpr, guard)) | q <- condQuestions]
+  + [*flatten(q, \and(ongoingExpr, \not(guard))) | q <- altQuestions];
+
+AQuestion flatten(AQuestion _, AExpr _) {
+  throw "Test";
+}
  
 AForm flatten(AForm f) {
-  return f; 
+  list[AQuestion] questions = [*flatten(q, \bool(true)) | q <- f.questions];
+  return form(f.name, questions);
 }
 
-/* Rename refactoring:
- *
- * Write a refactoring transformation that consistently renames all occurrences of the same name.
- * Use the results of name resolution to find the equivalence class of a name.
- *
- */
- 
 start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
    set[loc] toRename = {useOrDef};
    if (useOrDef in useDef.use, <useOrDef, loc d> <- useDef) {
