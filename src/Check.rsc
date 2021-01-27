@@ -3,7 +3,7 @@ module Check
 import AST;
 import Resolve;
 import Message;
-
+import IO;
 data Type
   = tint()
   | tbool()
@@ -20,42 +20,44 @@ Type getType(AType::_) = tunknown();
 
 TEnv collect(AForm f) {
   TEnv env = {};
-  env += {<r.src, r.name, r.content, getType(r.ansType)> | /r:regQuestion(_,_,_) := f};
-  env += {<c.src, c.name, c.content, getType(c.ansType)> | /c:calcQuestion(_,_,_,_) := f};
+  env += {<aid.src, aid.name, content, getType(ansType)> | /regQuestion(content, aid, ansType) := f};
+  env += {<aid.src, aid.name, content, getType(ansType)> | /calcQuestion(content, aid, ansType, _) := f};
   return env;
 }
 
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) =
   ( {} | it + check(q, tenv, useDef) | /AQuestion q <- f.questions );
 
-set[Message] check(r:regQuestion(str content, str name, AType ansType, src = loc l), TEnv tenv, UseDef useDef) {
+set[Message] check(r:regQuestion(str content, AId aid, AType ansType, src = loc l), TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
-  msgs += { error("Same name already exists with different type.", l) | t <- tenv, t.name == name, t.\type != getType(ansType) };
-  msgs += { warning("This label has been used before.", l) | t <- tenv, t.label == content, t.def != l };
+  msgs += { error("Same name already exists with different type.", l) | t <- tenv, t.name == aid.name, t.\type != getType(ansType) };
+  msgs += { warning("This label has been used before.", l) | t <- tenv, t.label == content, t.def != aid.src };
   return msgs; 
 }
 
-set[Message] check(c:calcQuestion(str content, str name, AType ansType, AExpr expr, src = loc l), TEnv tenv, UseDef useDef) {
+set[Message] check(c:calcQuestion(str content, AId aid, AType ansType, AExpr expr, src = loc l), TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
-  msgs += { error("Same name already exists with different type.", l) | t <- tenv, t.name == name, t.\type != getType(ansType) };
+  msgs += { error("Same name already exists with different type.", l) | t <- tenv, t.name == aid.name, t.\type != getType(ansType) };
   if (typeOf(expr, tenv, useDef) != getType(ansType)) {
-    msgs += error("Type of expression does not match specified type. Given: <getType(ansType)>, Actual: <typeOf(expr, tenv, useDef)>", expr.src);
+    msgs += error("Type of expression does not match specified type. Given: <getType(ansType)>, Actual: <typeOf(expr, tenv, useDef)>", ref(id(_)) := expr ? expr.id.src : expr.src);
   }
-  msgs += { warning("This label has been used before.", l) | t <- tenv, t.label == content, t.def != l };
+  msgs += { warning("This label has been used before.", l) | t <- tenv, t.label == content, t.def != aid.src };
   msgs += check(expr, tenv, useDef);
   return msgs; 
 }
 
 set[Message] check(i:ifStat(AExpr guard, list[AQuestion] condQuestions), TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
-  msgs += { error("Guards must be of type tbool(). Is of type: <typeOf(guard, tenv, useDef)>", guard.src) | typeOf(guard, tenv, useDef) != tbool() };
+  msgs += { error("Guards must be of type tbool(). Is of type: <typeOf(guard, tenv, useDef)>", ref(id(_)) := guard ? guard.id.src : guard.src) | typeOf(guard, tenv, useDef) != tbool() };
+  msgs += check(guard, tenv, useDef);
   msgs += ( {} | it + check(q, tenv, useDef) | /AQuestion q <- condQuestions);
   return msgs; 
 }
 
 set[Message] check(ie:ifElseStat(AExpr guard, list[AQuestion] condQuestions, list[AQuestion] altQuestions), TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
-  msgs += { error("Guards must be of type tbool(). Is of type: <typeOf(guard, tenv, useDef)>", guard.src) | typeOf(guard, tenv, useDef) != tbool() };
+  msgs += { error("Guards must be of type tbool(). Is of type: <typeOf(guard, tenv, useDef)>", ref(id(_)) := guard ? guard.id.src : guard.src) | typeOf(guard, tenv, useDef) != tbool() };
+  msgs += check(guard, tenv, useDef);
   msgs += ( {} | it + check(q, tenv, useDef) | /AQuestion q <- condQuestions);
   msgs += ( {} | it + check(q, tenv, useDef) | /AQuestion q <- altQuestions);
   return msgs; 
@@ -93,20 +95,20 @@ Type typeOf(ref(id(_, src = loc u)), TEnv tenv, UseDef useDef) {
   return tunknown();
 }
 
-Type typeOf(\int(_), TEnv tenv, UseDef useDef) 				  	   = tint();
-Type typeOf(\bool(_), TEnv tenv, UseDef useDef) 				   = tbool();
-Type typeOf(\str(_), TEnv tenv, UseDef useDef) 				       = tstr();
-Type typeOf(\not( AExpr e),              TEnv tenv, UseDef useDef) = typeOf(e, tenv, useDef) == tbool() 		? tbool() : tunknown();
-Type typeOf(\mul( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)  ? tint()  : tunknown();
-Type typeOf(\div( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tint()  : tunknown();
-Type typeOf(\add( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tint()  : tunknown();
-Type typeOf(\sub( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tint()  : tunknown();
-Type typeOf(\less(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
-Type typeOf(\leq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
-Type typeOf(\gt(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
-Type typeOf(\geq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
-Type typeOf(\and( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tbool(), tenv, useDef)	? tbool() : tunknown();
-Type typeOf(\or(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = sameType(lhs, rhs, tbool(), tenv, useDef)	? tbool() : tunknown();
+Type typeOf(\int(_), TEnv tenv, UseDef useDef) 				  	    = tint();
+Type typeOf(\bool(_), TEnv tenv, UseDef useDef) 				    = tbool();
+Type typeOf(\str(_), TEnv tenv, UseDef useDef) 				        = tstr();
+Type typeOf(\not( AExpr e),              TEnv tenv, UseDef useDef)  = typeOf(e, tenv, useDef) == tbool() 		? tbool() : tunknown();
+Type typeOf(\mul( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef) ? tint()  : tunknown();
+Type typeOf(\div( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef)	? tint()  : tunknown();
+Type typeOf(\add( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef)	? tint()  : tunknown();
+Type typeOf(\sub( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef)	? tint()  : tunknown();
+Type typeOf(\less(AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
+Type typeOf(\leq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
+Type typeOf(\gt(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
+Type typeOf(\geq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tint(),  tenv, useDef)	? tbool() : tunknown();
+Type typeOf(\and( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tbool(), tenv, useDef)	? tbool() : tunknown();
+Type typeOf(\or(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = sameType(lhs, rhs, tbool(), tenv, useDef)	? tbool() : tunknown();
 Type typeOf(\equ(  AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = tbool();
-Type typeOf(\neq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef) = tbool();
-default Type typeOf(AExpr _, TEnv _, UseDef _) 					   = tunknown();
+Type typeOf(\neq( AExpr lhs, AExpr rhs), TEnv tenv, UseDef useDef)  = tbool();
+default Type typeOf(AExpr _, TEnv _, UseDef _) 					    = tunknown();

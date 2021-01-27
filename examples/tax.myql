@@ -13,7 +13,19 @@ form taxOfficeExample {
       privateDebt: integer
     "Value residue:"
       valueResidue: integer = 
-        (sellingPrice - privateDebt)
+        privateDebt
   }
   
+  if (hasMaintLoan) {
+    "Final Test"
+      bol: boolean
+      
+    if (bol) {
+      "Test A"
+        A: integer = sellingPrice
+    } else {
+      "Test B"
+        B: integer = privateDebt
+    }
+  }
 }
