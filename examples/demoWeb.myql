@@ -1,0 +1,90 @@
+form SLEDemo { 
+  "Activate Boolean Q/A"
+  booleansActivated: boolean
+  
+  "Activate Integer Q/A"
+  integersActivated: boolean
+  
+  "Activate String Q/A"
+  stringsActivated: boolean
+  
+  if (booleansActivated) {
+  
+  	"A"
+  	A: boolean
+  	
+  	"B"
+  	B: boolean
+  	
+  	"!A"
+  	notA: boolean = !A
+  	
+  	"!B"
+  	notB: boolean = !B
+  	
+  	"A && B"
+  	AandB: boolean = A && B
+  	
+  	"A || B"
+  	AorB: boolean = A || B
+  	
+  }
+  
+  if (integersActivated) {
+  
+  	"C"
+  	C: integer
+  	
+  	"D"
+  	D: integer
+  	
+  	"Swap Boolean/Integer Operators (off: Integer, on: Boolean"
+  	boolInt: boolean
+  	
+  	if (boolInt) {
+  	
+  	  "C < D"
+  	  ClessD: boolean = C < D
+  	  
+  	  "C <= D"
+  	  CleqD: boolean = C <= D  
+  	  
+  	  "C >= D"
+  	  CgtD: boolean = C >= D  
+  	  
+  	  "C > D"
+  	  CgeqD: boolean = C > D  
+  	  
+  	} else {
+  	
+  	  "C + D"
+  	  CplusD: integer = C + D
+  	  
+  	  "C - D"
+  	  CminD: integer = C - D
+  	  
+  	  "C * D"
+  	  CmulD: integer = C * D
+  	  
+  	  "C / D"
+  	  CdivD: integer = C / D
+  	  
+  	}
+  }
+  
+  if (stringsActivated) {
+  
+  	"E"
+  	E: string
+  	
+  	"F"
+  	F: string
+  	
+  	"E == F"
+  	EeqF: boolean = E == F
+  	
+  	"E != F"
+  	EneqF: boolean = E != F
+  	
+  }
+}

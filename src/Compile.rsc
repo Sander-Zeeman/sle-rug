@@ -71,150 +71,36 @@ HTML5Node form2html(AForm f) = html(
 
 //---------------------JS-----------------------
 
-str getStandardExpr(/boolean()) = "new Expr(
-								  '  \"false\",
-								  '  null,
-								  '  \"bool\",
-								  '  null,
-								  ')";
-								  
-str getStandardExpr(/integer()) = "new Expr(
-								  '  \"0\",
-								  '  null,
-								  '  \"int\",
-								  '  null,
-								  ')";
-								  
-str getStandardExpr(/string())  = "new Expr(
-								  '  \"\",
-								  '  null,
-								  '  \"string\",
-								  '  null,
-								  ')";
-								  
+str exprTemp(str e1, str e2, str \type, str func) = "new Expr(
+												   '  <e1>,
+				 								   '  <e2>,
+				 								   '  <\type>,
+				 								   '  <func>,
+				 								   ')";
+
+str getStandardExpr(/boolean()) = exprTemp("\"true\"", "null", "\"bool\"",   "null");
+str getStandardExpr(/integer()) = exprTemp("\"0\"",    "null", "\"int\"",    "null");
+str getStandardExpr(/string())  = exprTemp("\"\"",     "null", "\"string\"", "null");
 str getStandardExpr(AType _) = "";
 
-
-str expr2js(ref(id(str name)))         = "new Expr(
-										 '  \"<name>\",
-										 '  null,
-										 '  \"id\",
-										 '  this.getVar
-										 ')";
-										 
-str expr2js(\int(int x))               = "new Expr(
-										 '  \"<x>\",
-										 '  null,
-										 '  \"int\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\bool(bool b))             = "new Expr(
-										 '  \"<b>\",
-										 '  null,
-										 '  \"bool\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\str(str s))               = "new Expr(
-										 '  <s>,
-										 '  null,
-										 '  \"string\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\not(AExpr e))             = "new Expr(
-										 '  <expr2js(e)>,
-										 '  null,
-										 '  \"!\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\mul(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"*\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\div(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"/\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\add(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"+\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\sub(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"-\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\less(AExpr e1, AExpr e2)) = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"\<\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\leq(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"\<=\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\gt(AExpr e1, AExpr e2))   = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"\>\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\geq(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"\>=\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\equ(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"==\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\neq(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"!=\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\and(AExpr e1, AExpr e2))  = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"&&\",
-										 '  null,
-										 ')";
-										 
-str expr2js(\or(AExpr e1, AExpr e2))   = "new Expr(
-										 '  <expr2js(e1)>,
-										 '  <expr2js(e2)>,
-										 '  \"||\",
-										 '  null,
-										 ')";
-										
-str expr2js(AExpr _) = "";
+str expr2js(ref(id(str name)))         = exprTemp("\"<name>\"",    "null",          "\"id\"",     "this.getVar");
+str expr2js(\int(int x))               = exprTemp("\"<x>\"",       "null",          "\"int\"",    "null");
+str expr2js(\bool(bool b))             = exprTemp("\"<b>\"",       "null",          "\"bool\"",   "null");
+str expr2js(\str(str s))               = exprTemp("<s>",           "null",          "\"string\"", "null");
+str expr2js(\not(AExpr e))             = exprTemp("<expr2js(e)>",  "null",          "\"!\"",      "null");
+str expr2js(\mul(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"*\"",      "null");
+str expr2js(\div(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"/\"",      "null");
+str expr2js(\add(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"+\"",      "null");
+str expr2js(\sub(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"-\"",      "null");
+str expr2js(\less(AExpr e1, AExpr e2)) = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"\<\"",     "null");
+str expr2js(\leq(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"\<=\"",    "null");
+str expr2js(\gt(AExpr e1, AExpr e2))   = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"\>\"",     "null");
+str expr2js(\geq(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"\>=\"",    "null");
+str expr2js(\equ(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"==\"",     "null");
+str expr2js(\neq(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"!=\"",     "null");
+str expr2js(\and(AExpr e1, AExpr e2))  = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"&&\"",     "null");
+str expr2js(\or(AExpr e1, AExpr e2))   = exprTemp("<expr2js(e1)>", "<expr2js(e2)>", "\"||\"",     "null");
+str expr2js(AExpr _) 				   = "";
 
 str question2state(regQuestion(content, name, ansType)) =
 "this.state.vars.push({
